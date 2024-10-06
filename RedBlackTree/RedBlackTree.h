@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "Node.h"
+#include "Node.h" 
 
 using namespace std;
 
@@ -14,10 +14,15 @@ class RedBlackTree{
         Node* NIL;
 
         void leftRotate(Node* x);
-        void rightRotate(Mode* x);
+        void rightRotate(Node* x);
 
         //Insert
-        void fixInsert(Node* x);
+        void insertFixUp(Node* z);
+
+        //Search
+        Node* searchHelper(Node* node, int data);
+
+        
 
 
 
@@ -25,7 +30,7 @@ class RedBlackTree{
     public:
         RedBlackTree();
 
-        void insert();
+        void insert(int key);
 
 };
 
