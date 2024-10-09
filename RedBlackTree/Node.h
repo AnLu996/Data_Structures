@@ -9,15 +9,11 @@ using namespace std;
 struct Node {
     int key;
     bool color; // true == rojo
-    Node *parent, *right, *left;
+    Node* left;
+    Node* right;
+    Node* parent;
 
-    Node(int key) {
-        this->key = key;
-        this->color = true;  
-        this->parent = nullptr;  
-        this->right = nullptr;
-        this->left = nullptr;
-    }
+    Node(int key) : key(key), color(true), left(nullptr), right(nullptr), parent(nullptr) {}
 };
 
 #endif // NODE_H

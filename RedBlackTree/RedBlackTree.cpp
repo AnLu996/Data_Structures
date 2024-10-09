@@ -12,6 +12,8 @@ RedBlackTree::RedBlackTree() {
     root = NIL;
 }
 
+Node* RedBlackTree::getRoot() const { return root; }
+
 void RedBlackTree::leftRotate(Node* x) {
     Node* y = x->right;
     x->right = y->left;
@@ -21,19 +23,16 @@ void RedBlackTree::leftRotate(Node* x) {
     }
     y->parent = x->parent;
 
-    if (x->parent != nullptr) {
-        root = y;
-    }
-    else if (x == x->parent->left) {
+    if (x->parent == nullptr) {
+        root = y;  
+    } else if (x == x->parent->left) {
         x->parent->left = y;
-    }
-    else {
+    } else {
         x->parent->right = y;
     }
 
     y->left = x;
-    y->parent = y;
-    
+    x->parent = y;
 }
 
 void RedBlackTree::rightRotate(Node* x) {
@@ -46,12 +45,10 @@ void RedBlackTree::rightRotate(Node* x) {
     y->parent = x->parent;
 
     if (x->parent == nullptr) {
-        root = y;
-    }
-    else if (x == x->parent->right) {
+        root = y;  
+    } else if (x == x->parent->right) {
         x->parent->right = y;
-    }
-    else {
+    } else {
         x->parent->left = y;
     }
     y->right = x;
@@ -59,7 +56,7 @@ void RedBlackTree::rightRotate(Node* x) {
 }
 
 void RedBlackTree::insertFixUp(Node* z) {
-    while (z->parent->color == true) {
+    while (z->parent != nullptr && z->parent->color == true) {
         if (z->parent == z->parent->parent->left) {
             Node* y = z->parent->parent->right;
 
@@ -108,16 +105,26 @@ void RedBlackTree::insertFixUp(Node* z) {
     root->color = false;
 }
 
-Node* RedBlackTree::searchHelper(Node* node, int data) {
+void RedBlackTree::inorderHelper(Node* node) {
+    if (node != NIL) {
+        inorderHelper(node->left);
+        cout << node->key << " ";
+        inorderHelper(node->right);
+    }
+}
+
+Node* RedBlackTree::searchHelper(Node* node, int data, int& cont) {
+    cont++;
+    
     if (node == NIL || node->key == data) {
         return node;
     }
 
     if (data < node->key) {
-        return searchHelper(node->left, data);
+        return searchHelper(node->left, data, cont);
     }
     else {
-        return searchHelper(node->right, data);
+        return searchHelper(node->right, data, cont);
     }
 }
 
@@ -154,4 +161,12 @@ void RedBlackTree::insert(int data) {
     }
 
     insertFixUp(z);
+}
+
+void RedBlackTree::inorder() {
+    inorderHelper(root);
+}
+
+Node* RedBlackTree::search(int data, int& cont) {
+    return searchHelper(root, data, cont);
 }
