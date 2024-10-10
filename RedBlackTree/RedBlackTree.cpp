@@ -2,7 +2,7 @@
 
 RedBlackTree::RedBlackTree() {
     NIL = new Node(0);
-    NIL->color = false; // Negro
+    NIL->color = false; // Black
     NIL->left = NIL->right = NIL->parent = NIL;
     root = NIL;
 }
@@ -54,42 +54,42 @@ void RedBlackTree::rightRotate(Node* x) {
 }
 
 void RedBlackTree::insertFixUp(Node* z) {
-    while (z->parent != NIL && z->parent->color == true) { // Mientras el padre sea rojo
+    while (z->parent != NIL && z->parent->color == true) { 
         if (z->parent == z->parent->parent->left) {
-            Node* y = z->parent->parent->right; // Tío
+            Node* y = z->parent->parent->right; 
 
-            if (y->color == true) { // Caso 1
+            if (y->color == true) { // Case 1
                 z->parent->color = false;
                 y->color = false;
                 z->parent->parent->color = true;
                 z = z->parent->parent;
             }
             else {
-                if (z == z->parent->right) { // Caso 2
+                if (z == z->parent->right) { // Case 2
                     z = z->parent;
                     leftRotate(z);
                 }
-                // Caso 3
+                // Case 3
                 z->parent->color = false;
                 z->parent->parent->color = true;
                 rightRotate(z->parent->parent);
             }
         }
-        else { // Simétrico
-            Node* y = z->parent->parent->left; // Tío
+        else {
+            Node* y = z->parent->parent->left;
 
-            if (y->color == true) { // Caso 1
+            if (y->color == true) { // Case 1
                 z->parent->color = false;
                 y->color = false;
                 z->parent->parent->color = true;
                 z = z->parent->parent;
             }
             else {
-                if (z == z->parent->left) { // Caso 2
+                if (z == z->parent->left) { // Case 2
                     z = z->parent;
                     rightRotate(z);
                 }
-                // Caso 3
+                // Case 3
                 z->parent->color = false;
                 z->parent->parent->color = true;
                 leftRotate(z->parent->parent);
@@ -126,7 +126,7 @@ Node* RedBlackTree::searchHelper(Node* node, int data, int& cont) {
 void RedBlackTree::insert(int key) {
     // New node
     Node* z = new Node(key);
-    z->color = true; // Rojo
+    z->color = true; // Red
     z->left = z->right = z->parent = NIL;
 
     Node* y = NIL;
@@ -166,13 +166,13 @@ Node* RedBlackTree::search(int data, int& cont) {
     return searchHelper(root, data, cont);
 }
 
-// Función para imprimir el árbol en formato Graphviz
+// // Print tree in Graphviz's format
 void RedBlackTree::printGraphvizHelper(Node* node, std::ofstream& file) {
     if (node != NIL) {
-        if (node->color) { // Rojo
+        if (node->color) { // Red
             file << "    " << node->key << " [style=filled, fillcolor=red, fontcolor=white];\n";
         }
-        else { // Negro
+        else { // Black
             file << "    " << node->key << " [style=filled, fillcolor=black, fontcolor=white];\n";
         }
 
@@ -180,6 +180,7 @@ void RedBlackTree::printGraphvizHelper(Node* node, std::ofstream& file) {
             file << "    " << node->key << " -> " << node->left->key << ";\n";
             printGraphvizHelper(node->left, file);
         }
+
         if (node->right != NIL) {
             file << "    " << node->key << " -> " << node->right->key << ";\n";
             printGraphvizHelper(node->right, file);
@@ -201,6 +202,4 @@ void RedBlackTree::printGraphviz(const std::string& filename) {
 
     graphvizFile << "}\n";
     graphvizFile.close();
-
-    std::cout << "Archivo Graphviz generado: " << filename << std::endl;
 }
