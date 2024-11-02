@@ -8,7 +8,7 @@ using namespace std;
 
 struct Node {
     int key;
-    bool color; // true == rojo
+    bool color; // true == Red
     Node* left;
     Node* right;
     Node* parent;

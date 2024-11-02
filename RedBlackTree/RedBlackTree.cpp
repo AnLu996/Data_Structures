@@ -1,18 +1,11 @@
-#include <iostream>
-#include <string>
-
 #include "RedBlackTree.h"
-
-using namespace std;
 
 RedBlackTree::RedBlackTree() {
     NIL = new Node(0);
-    NIL->color = false;
-    NIL->left = NIL->right = NIL;
+    NIL->color = false; // Black
+    NIL->left = NIL->right = NIL->parent = NIL;
     root = NIL;
 }
-
-Node* RedBlackTree::getRoot() const { return root; }
 
 void RedBlackTree::leftRotate(Node* x) {
     Node* y = x->right;
@@ -23,11 +16,13 @@ void RedBlackTree::leftRotate(Node* x) {
     }
     y->parent = x->parent;
 
-    if (x->parent == nullptr) {
-        root = y;  
-    } else if (x == x->parent->left) {
+    if (x->parent == NIL) { // NIL por nullptr
+        root = y;
+    }
+    else if (x == x->parent->left) {
         x->parent->left = y;
-    } else {
+    }
+    else {
         x->parent->right = y;
     }
 
@@ -44,32 +39,33 @@ void RedBlackTree::rightRotate(Node* x) {
     }
     y->parent = x->parent;
 
-    if (x->parent == nullptr) {
-        root = y;  
-    } else if (x == x->parent->right) {
+    if (x->parent == NIL) {
+        root = y;
+    }
+    else if (x == x->parent->right) {
         x->parent->right = y;
-    } else {
+    }
+    else {
         x->parent->left = y;
     }
+
     y->right = x;
     x->parent = y;
 }
 
 void RedBlackTree::insertFixUp(Node* z) {
-    while (z->parent != nullptr && z->parent->color == true) {
+    while (z->parent != NIL && z->parent->color == true) { 
         if (z->parent == z->parent->parent->left) {
-            Node* y = z->parent->parent->right;
+            Node* y = z->parent->parent->right; 
 
-            if (y->color == true) {
-                // Case 1
+            if (y->color == true) { // Case 1
                 z->parent->color = false;
                 y->color = false;
                 z->parent->parent->color = true;
                 z = z->parent->parent;
             }
             else {
-                if (z == z->parent->right) {
-                    // Case 2
+                if (z == z->parent->right) { // Case 2
                     z = z->parent;
                     leftRotate(z);
                 }
@@ -82,16 +78,14 @@ void RedBlackTree::insertFixUp(Node* z) {
         else {
             Node* y = z->parent->parent->left;
 
-            if (y->color == true) {
-                // Case 1
+            if (y->color == true) { // Case 1
                 z->parent->color = false;
                 y->color = false;
                 z->parent->parent->color = true;
                 z = z->parent->parent;
             }
             else {
-                if (z == z->parent->left) {
-                    // Case 2
+                if (z == z->parent->left) { // Case 2
                     z = z->parent;
                     rightRotate(z);
                 }
@@ -105,6 +99,7 @@ void RedBlackTree::insertFixUp(Node* z) {
     root->color = false;
 }
 
+
 void RedBlackTree::inorderHelper(Node* node) {
     if (node != NIL) {
         inorderHelper(node->left);
@@ -115,7 +110,7 @@ void RedBlackTree::inorderHelper(Node* node) {
 
 Node* RedBlackTree::searchHelper(Node* node, int data, int& cont) {
     cont++;
-    
+
     if (node == NIL || node->key == data) {
         return node;
     }
@@ -128,15 +123,14 @@ Node* RedBlackTree::searchHelper(Node* node, int data, int& cont) {
     }
 }
 
-void RedBlackTree::insert(int data) {
+void RedBlackTree::insert(int key) {
     // New node
-    Node* z = new Node(data);
-    z->color = true;
-    z->left = NIL;
-    z->right = NIL;
-    
-    Node* x = root;
+    Node* z = new Node(key);
+    z->color = true; // Red
+    z->left = z->right = z->parent = NIL;
+
     Node* y = NIL;
+    Node* x = root;
 
     while (x != NIL) {
         y = x;
@@ -165,8 +159,47 @@ void RedBlackTree::insert(int data) {
 
 void RedBlackTree::inorder() {
     inorderHelper(root);
+    cout << endl;
 }
 
 Node* RedBlackTree::search(int data, int& cont) {
     return searchHelper(root, data, cont);
+}
+
+// // Print tree in Graphviz's format
+void RedBlackTree::printGraphvizHelper(Node* node, std::ofstream& file) {
+    if (node != NIL) {
+        if (node->color) { // Red
+            file << "    " << node->key << " [style=filled, fillcolor=red, fontcolor=white];\n";
+        }
+        else { // Black
+            file << "    " << node->key << " [style=filled, fillcolor=black, fontcolor=white];\n";
+        }
+
+        if (node->left != NIL) {
+            file << "    " << node->key << " -> " << node->left->key << ";\n";
+            printGraphvizHelper(node->left, file);
+        }
+
+        if (node->right != NIL) {
+            file << "    " << node->key << " -> " << node->right->key << ";\n";
+            printGraphvizHelper(node->right, file);
+        }
+    }
+}
+
+void RedBlackTree::printGraphviz(const std::string& filename) {
+    std::ofstream graphvizFile(filename);
+    if (!graphvizFile.is_open()) {
+        std::cerr << "Error al abrir el archivo " << filename << std::endl;
+        return;
+    }
+
+    graphvizFile << "digraph RedBlackTree {\n";
+    graphvizFile << "    node [shape=circle];\n";
+
+    printGraphvizHelper(root, graphvizFile);
+
+    graphvizFile << "}\n";
+    graphvizFile.close();
 }

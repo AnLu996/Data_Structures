@@ -2,34 +2,33 @@
 #define REDBLACKTREE_H
 
 #include <iostream>
-#include <string>
+#include <fstream>
+
 #include "Node.h"
 
-using namespace std;
-
 class RedBlackTree {
-    private:
-        Node* root;
-        Node* NIL;
+private:
+    Node* root;
+    Node* NIL;
 
-        void leftRotate(Node* x);
-        void rightRotate(Node* x);
+    void leftRotate(Node* x);
+    void rightRotate(Node* x);
 
-        // Insert
-        void insertFixUp(Node* z);
+    void insertFixUp(Node* z);
+    void inorderHelper(Node* node);
+    Node* searchHelper(Node* node, int data, int& comparisons);
+    void printGraphvizHelper(Node* node, std::ofstream& file);
 
-        void inorderHelper(Node* node);
+public:
+    RedBlackTree();
 
-        // Search
-        Node* searchHelper(Node* node, int data, int& cont);
+    void insert(int key);
+    void inorder();
+    Node* search(int data, int& comparisons);
+    Node* getRoot() const { return root; }
 
-    public:
-        RedBlackTree();
-
-        Node* getRoot() const;
-        void insert(int key);
-        void inorder();
-        Node* search(int data, int& cont);
+    // Graphviz
+    void printGraphviz(const std::string& filename);
 };
 
 #endif // REDBLACKTREE_H

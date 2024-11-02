@@ -1,99 +1,100 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <random>
 #include <chrono>
 #include <set>
-#include <fstream> // Para trabajar con archivos
 
 #include "RedBlackTree.h"
 
 using namespace std;
-using namespace std::chrono;
-
-// Método para imprimir el árbol en formato Graphviz
-void printGraphviz(Node* root, ofstream& file) {
-    if (root == nullptr) return;
-
-    if (root->left != nullptr) {
-        file << "    " << root->key << " -> " << root->left->key << ";" << endl;
-        printGraphviz(root->left, file);
-    }
-
-    if (root->right != nullptr) {
-        file << "    " << root->key << " -> " << root->right->key << ";" << endl;
-        printGraphviz(root->right, file);
-    }
-}
+using namespace chrono;
 
 int main()
 {
-    RedBlackTree rbt;
+    // .csv file
+    ofstream csvFile("comparisons.csv");
+    if (!csvFile.is_open()) {
+        cerr << "Error al crear el archivo comparisons.csv" << endl;
+        return 1;
+    }
+    csvFile << "Cantidad de Elementos,Comparaciones Promedio\n";
+    
     int max_insertions = 10;
 
-    // Random number generator
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> distribution(1, max_insertions); 
+    while (max_insertions <= 10000) {
+        RedBlackTree rbt;
+    
+        // Random number generator
+        random_device rd;
+        mt19937 generator(rd());
+        uniform_int_distribution<int> insertion_distribution(1, max_insertions);
 
-    std::set<int> inserted_numbers;
+        set<int> inserted_numbers;
 
-    // Inserting
-    auto start_insert = high_resolution_clock::now();
+        // Insertion
+        auto start_insert = high_resolution_clock::now();
 
-    for (int i = 0; i < max_insertions; i++) {
-        int random_number = distribution(generator);
-        if (inserted_numbers.find(random_number) == inserted_numbers.end()) {
-            rbt.insert(random_number);
-            inserted_numbers.insert(random_number);
+        while (inserted_numbers.size() < max_insertions) {
+            int random_number = insertion_distribution(generator);
+            if (inserted_numbers.find(random_number) == inserted_numbers.end()) {
+                rbt.insert(random_number);
+                inserted_numbers.insert(random_number);
+            }
         }
-    }
 
-    auto end_insert = high_resolution_clock::now();
+        auto end_insert = high_resolution_clock::now();
 
-    // Time insertion
-    auto duration_insert = duration_cast<duration<double>>(end_insert - start_insert);
-    cout << "Tiempo de insercion: " << duration_insert.count() << " segundos" << endl;
+        // Time insertion
+        auto duration_insert = duration_cast<duration<double>>(end_insert - start_insert);
+        cout << "Tiempo de inserción: " << duration_insert.count() << " segundos" << endl;
 
-    // Inorder traversal
-    cout << "Inorder traversal:" << endl;
-    rbt.inorder(); // Salida con los números insertados aleatoriamente
-    cout << endl;
+        cout << "ELEMENTOS INSERTADOS: " << inserted_numbers.size() << endl;
 
-    // Graphviz output
-    ofstream graphvizFile("RedBlackTree.dot");
-    graphvizFile << "digraph RedBlackTree {" << endl;
-    graphvizFile << "    node [shape=circle];" << endl;
-    
-    // Generate Graphviz representation
-    printGraphviz(rbt.getRoot(), graphvizFile);
+        /* Recorrido in-order
+        cout << "Inorder traversal:" << endl;
+        rbt.inorder(); // Salida con los números insertados aleatoriamente
+        cout << endl;*/
 
-    graphvizFile << "}" << endl;
-    graphvizFile.close();
+        // Graphviz's file generator
+        rbt.printGraphviz("RedBlackTree.dot");
 
-    // Searching
-    auto start_search = high_resolution_clock::now();
-    
-    // CSV file for comparisons
-    ofstream csvFile("comparisons.csv");
-    csvFile << "Número Buscado,Cantidad de Comparaciones" << endl;
+        // Searching
+        auto start_search = high_resolution_clock::now();
 
-    for (int i = 0; i < 80; i++) {
-        int random_number = distribution(generator);
-        int cont = 0;
-        rbt.search(random_number, cont);
-        cout << "Cantidad de comparaciones para " << random_number << ": " << cont << endl;
+        // Distribution searching
+        uniform_int_distribution<int> search_distribution(1, max_insertions);
 
-        // Save to CSV
-        csvFile << random_number << "," << cont << endl;
+        // 80 searchs
+        for (int i = 0; i < 80; i++) {
+            int random_number = search_distribution(generator);
+            int comparaciones = 0;
+            rbt.search(random_number, comparaciones);
+
+            //cout << "Cantidad de comparaciones para " << random_number << ": " << comparaciones << endl;
+
+            // save at CSV
+            csvFile << max_insertions << "," << comparaciones << "\n";
+        }
+
+        auto end_search = high_resolution_clock::now();
+
+        // Time searching
+        auto duration_search = duration_cast<duration<double>>(end_search - start_search);
+        cout << "Tiempo de búsqueda: " << duration_search.count() << " segundos" << endl;
+
+        if (max_insertions == 10) {
+            max_insertions = 100;
+        }
+        else {
+            max_insertions+=100;
+        }
+
+        cout << endl;
     }
 
     csvFile.close();
-    
-    auto end_search = high_resolution_clock::now();
-
-    // Time search
-    auto duration_search = duration_cast<duration<double>>(end_search - start_search);
-    cout << "Tiempo de busqueda: " << duration_search.count() << " segundos" << endl;
+    cout << "Archivo CSV generado: comparisons.csv" << endl;
 
     return 0;
 }
